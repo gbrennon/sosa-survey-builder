@@ -1,0 +1,97 @@
+{
+  "id": "architecture-survey",
+  "workspaceId": "cworkspaceexample000000000000",
+  "name": "Software Architecture Assessment",
+  "description": {
+    "default": "A Formbricks-compatible assessment of software architecture practices.",
+    "de": "Eine Formbricks-kompatible Bewertung von Softwarearchitektur-Praktiken."
+  },
+  "welcomeCard": {
+    "headline": "Architecture assessment",
+    "subheader": "Answer the questions that apply to your team.",
+    "buttonLabel": "Start"
+  },
+  "elements": [
+    {
+      "id": "intro",
+      "type": "directions",
+      "headline": "There are no right or wrong answers.",
+      "subheader": "Use the option that best describes your current system."
+    },
+    {
+      "id": "architecture_style",
+      "type": "single_select",
+      "headline": "Which architecture style best describes your system?",
+      "required": true,
+      "choices": [
+        { "id": "monolith", "label": "Monolith" },
+        { "id": "modular_monolith", "label": "Modular monolith" },
+        { "id": "microservices", "label": "Microservices" },
+        { "id": "serverless", "label": "Serverless" }
+      ]
+    },
+    {
+      "id": "capabilities",
+      "type": "multiselect",
+      "headline": "Which capabilities are in use?",
+      "required": true,
+      "randomize": true,
+      "anchoredChoiceIds": ["none"],
+      "other": { "placeholder": "Describe another capability" },
+      "choices": [
+        { "id": "redis", "label": "Redis" },
+        { "id": "kafka", "label": "Kafka" },
+        { "id": "tracing", "label": "Distributed tracing" },
+        { "id": "alerting", "label": "Alerting" },
+        { "id": "none", "label": "None of the above" }
+      ]
+    },
+    {
+      "id": "cloud_provider",
+      "type": "single_select",
+      "headline": "Which cloud provider hosts the system?",
+      "choices": [
+        { "id": "aws", "label": "AWS" },
+        { "id": "gcp", "label": "Google Cloud" },
+        { "id": "azure", "label": "Azure" },
+        { "id": "on_prem", "label": "On-premises" }
+      ]
+    },
+    {
+      "id": "architecture_notes",
+      "type": "essay",
+      "headline": "What architecture decision has had the greatest impact on your team?",
+      "charLimit": { "max": 2000 }
+    },
+    {
+      "id": "confidence",
+      "type": "scale",
+      "headline": "How confident are you in the current architecture?",
+      "required": true,
+      "min": 1,
+      "max": 5,
+      "lowerLabel": "Not confident",
+      "upperLabel": "Very confident"
+    }
+  ],
+  "rules": [
+    {
+      "target": "cloud_provider",
+      "mode": "show",
+      "all": [
+        { "element": "architecture_style", "operator": "equals", "value": "microservices" }
+      ]
+    },
+    {
+      "target": "architecture_notes",
+      "mode": "skip",
+      "all": [
+        { "element": "architecture_style", "operator": "equals", "value": "serverless" }
+      ]
+    }
+  ],
+  "ending": {
+    "headline": "Assessment complete",
+    "subheader": "Thank you for sharing your architecture context."
+  }
+}
