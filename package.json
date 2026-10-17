@@ -1,0 +1,16 @@
+{
+  "name": "sosa-survey-builder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run src/cli.ts build",
+    "test": "bun test tests/*.test.ts",
+    "validate": "bun run src/cli.ts validate"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}
