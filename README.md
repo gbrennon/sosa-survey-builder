@@ -62,9 +62,30 @@ For example,
   per-value scale labels,
   and randomized scale direction are rejected instead of silently discarded.
 
-## Requirements reference
+## Authoring guide
 
-The project uses the [SOSA requirements document](SOSA%20-%20Survey%20Builder%20Requirements.md).
+See the [survey authoring guide](docs/survey-authoring.md) for the supported
+document structure and Formbricks compatibility rules.
+
+## Automate validation and builds
+
+Validate the default example:
+
+```bash
+./scripts/validate-survey.sh
+```
+
+Build the default example into `dist/`:
+
+```bash
+./scripts/build-survey.sh
+```
+
+Use a custom authoring file and output directory:
+
+```bash
+./scripts/build-survey.sh survey.json /tmp/my-survey
+```
 
 Formbricks owns participant identity,
 response identity,
