@@ -39,24 +39,41 @@ if [[ ! -f "$env_file" ]]; then
   exit 1
 fi
 
+services_are_running() {
+  local service container status
+  for service in "${required_services[@]}"; do
+    container="${compose_project}_${service}_1"
+    status="$(
+      podman container inspect "$container" \
+        --format '{{.State.Status}}' 2>/dev/null || true
+    )"
+    if [[ "$status" != "running" ]]; then
+      return 1
+    fi
+  done
+}
+
 cd "$formbricks_dir"
 
-all_services_running=true
-for service in "${required_services[@]}"; do
-  container="${compose_project}_${service}_1"
-  status="$(podman container inspect "$container" --format '{{.State.Status}}' 2>/dev/null || true)"
-  if [[ "$status" != "running" ]]; then
-    all_services_running=false
-    break
-  fi
-done
-
-if [[ "$all_services_running" != true ]]; then
+if ! services_are_running; then
+  compose_status=0
   podman-compose \
     -p "$compose_project" \
     -f "$compose_file" \
     --env-file "$env_file" \
-    up -d
+    up -d || compose_status=$?
+
+  if ! services_are_running; then
+    if [[ "$compose_status" -ne 0 ]]; then
+      exit "$compose_status"
+    fi
+    printf 'Formbricks dependency services are not running\n' >&2
+    exit 1
+  fi
+
+  if [[ "$compose_status" -ne 0 ]]; then
+    printf 'compose reported an init-container warning; required services are running\n' >&2
+  fi
 fi
 
 for attempt in {1..30}; do
