@@ -12,30 +12,13 @@ Install and verify these tools:
 - Podman and `podman-compose`
 - `terminal-browser`
 
-Keep the Formbricks checkout separate from this SOSA repository.
-
-## Start Formbricks dependencies
-
-Run the supported development setup from the Formbricks checkout:
-
-```bash
-cd /path/to/formbricks
-pnpm install
-pnpm db:up
-```
-
-`pnpm db:up` runs the Formbricks development dependency stack.
-When using Podman directly, use the equivalent command:
-
-```bash
-podman-compose -p formbricks \
-  -f docker-compose.dev.yml \
-  --env-file .env \
-  up -d
-```
-
-The dependency stack includes PostgreSQL, Valkey or Redis, Hub, RustFS,
-and Cube. It does not start the Formbricks web application.
+The combined helper bootstraps Formbricks in a sibling checkout at
+`../formbricks`.
+It clones `https://github.com/formbricks/formbricks.git` at `main` when the
+checkout is missing.
+Override the checkout, repository, or ref with `FORMBRICKS_DIR`,
+`FORMBRICKS_REPOSITORY_URL`, and `FORMBRICKS_REF`.
+Formbricks source, dependencies, and `.env` remain outside this repository.
 
 ## Start and ingest with the combined helper
 
