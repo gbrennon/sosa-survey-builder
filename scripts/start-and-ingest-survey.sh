@@ -78,8 +78,8 @@ done
 "$script_dir/build-survey.sh" "$survey_path" "$work_dir"
 
 WORK_DIR="$work_dir" bun -e '
-const payloadPath = `${Bun.env.WORK_DIR}/survey.payload.json`;
-const outputPath = `${Bun.env.WORK_DIR}/formbricks-payload.json`;
+const payloadPath = Bun.env.WORK_DIR + "/survey.payload.json";
+const outputPath = Bun.env.WORK_DIR + "/formbricks-payload.json";
 const payload = await Bun.file(payloadPath).json();
 payload.workspaceId = Bun.env.FORMBRICKS_WORKSPACE_ID;
 await Bun.write(outputPath, JSON.stringify(payload, null, 2));
@@ -95,7 +95,7 @@ curl --fail-with-body \
 
 survey_id="$(WORK_DIR="$work_dir" bun -e '
 const response = await Bun.file(
-  `${Bun.env.WORK_DIR}/create-response.json`
+  Bun.env.WORK_DIR + "/create-response.json"
 ).json();
 const surveyId = response.data?.id;
 if (typeof surveyId !== "string" || surveyId.length === 0) process.exit(1);
