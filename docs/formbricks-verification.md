@@ -62,6 +62,9 @@ It keeps the web process attached to the terminal so its startup errors remain
 visible. Press `Ctrl+C` to stop the web process; it does not run `down` on the
 dependency stack.
 
+The helper reuses already-running long-lived services and waits for Valkey
+to answer `PONG` before starting the web process.
+
 When using the helper, skip the separate web-start command below.
 
 Keep local secrets in the Formbricks `.env` file.
