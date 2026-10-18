@@ -43,6 +43,27 @@ podman-compose -p formbricks \
 The dependency stack includes PostgreSQL, Valkey or Redis, Hub, RustFS,
 and Cube. It does not start the Formbricks web application.
 
+To start the dependencies and web application together, run the SOSA helper:
+
+```bash
+cd /path/to/sosa-survey-builder
+./scripts/start-formbricks.sh /path/to/formbricks
+```
+
+The helper defaults to a sibling checkout at `../formbricks`.
+Override that location with `FORMBRICKS_DIR`:
+
+```bash
+FORMBRICKS_DIR=/path/to/formbricks \
+  ./scripts/start-formbricks.sh
+```
+
+It keeps the web process attached to the terminal so its startup errors remain
+visible. Press `Ctrl+C` to stop the web process; it does not run `down` on the
+dependency stack.
+
+When using the helper, skip the separate web-start command below.
+
 Keep local secrets in the Formbricks `.env` file.
 Never commit them or copy them into the SOSA repository.
 
