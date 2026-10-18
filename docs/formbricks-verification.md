@@ -8,89 +8,99 @@ and verifies conditional questions in the live browser survey.
 Install and verify these tools:
 
 - Bun 1.x
-- Podman
-- `podman-compose`
+- Node.js and pnpm, as required by Formbricks
+- Podman and `podman-compose`
 - `terminal-browser`
 
-The Formbricks checkout must have local Podman services running.
-The web application must be published on port `3000`.
+Use three terminals:
 
-## Start Formbricks with Podman
+1. Formbricks dependencies
+2. Formbricks web application
+3. SOSA survey builder
 
-Run the Formbricks production compose from the Formbricks checkout.
-Use a project name that does not collide with another local stack:
+Keep the Formbricks checkout separate from this SOSA repository.
+
+## Start Formbricks dependencies
+
+Run the supported development setup from the Formbricks checkout:
 
 ```bash
 cd /path/to/formbricks
+pnpm install
+pnpm db:up
 ```
 
-Configure the required local-only values in the Formbricks environment file.
-At minimum, the production compose requires values for:
-
-- `POSTGRES_PASSWORD`
-- `AUTHZED_DATABASE_PASSWORD`
-- `AUTHZED_TOKEN`
-- `BETTER_AUTH_SECRET`
-- `ENCRYPTION_KEY`
-- `CRON_SECRET`
-
-Use the Formbricks checkout's environment template and documentation.
-Never commit local secrets or copy them into the SOSA repository.
-
-Validate the resolved compose configuration before starting it:
+`pnpm db:up` runs the Formbricks development dependency stack.
+When using Podman directly, use the equivalent command:
 
 ```bash
-podman-compose -p sosa-formbricks \
-  -f docker/docker-compose.yml \
-  --env-file .env \
-  config
-```
-
-Start the stack:
-
-```bash
-podman-compose -p sosa-formbricks \
-  -f docker/docker-compose.yml \
+podman-compose -p formbricks \
+  -f docker-compose.dev.yml \
   --env-file .env \
   up -d
 ```
 
+The dependency stack includes PostgreSQL, Valkey or Redis, Hub, RustFS,
+and Cube. It does not start the Formbricks web application.
 
-If the checkout's current compose file reports a Podman-specific bind-mount
-or interpolation error, follow the Formbricks checkout's current
-`docker/README.md` instructions for the supported container runtime.
-The SOSA builder does not replace or patch the Formbricks runtime.
+Keep local secrets in the Formbricks `.env` file.
+Never commit them or copy them into the SOSA repository.
 
-## Check Formbricks readiness
-
-List the isolated project:
+Check that the dependencies are running:
 
 ```bash
-podman ps --filter name=sosa-formbricks
+podman ps
 ```
 
-The web service must publish port `3000`.
-The root route must return an HTML response:
+The Redis or Valkey service must be running on port `6379`.
+Do not start an old stopped Formbricks project alongside the active
+`formbricks_*` project.
+
+## Start the Formbricks web application
+
+In a second terminal, keep the dependency stack running and start the web
+application from the Formbricks checkout:
+
+```bash
+cd /path/to/formbricks
+pnpm dev
+```
+
+The `pnpm dev` command starts the `@formbricks/web` process on port `3000`.
+Wait for it to finish compiling before opening the browser.
+
+Check readiness:
 
 ```bash
 bun -e 'const r = await fetch("http://localhost:3000/"); console.log(r.status)'
 ```
 
 Continue only when the command prints `200`.
+Open the web application at:
 
+```text
+http://localhost:3000
+```
 
-## Build the SOSA artifacts
+If the web process reports `ECONNREFUSED` for port `6379`, stop it,
+confirm that Redis or Valkey is running, and start `pnpm dev` again.
 
-Run these commands from the SOSA repository:
+## Start SOSA and build the survey
+
+In a third terminal, run these commands from the SOSA repository:
 
 ```bash
 cd /path/to/sosa-survey-builder
+bun install
 bun run test
 bun run validate examples/architecture-survey.json
 export SOSA_BUILD_DIR="$(mktemp -d)"
 bun run build examples/architecture-survey.json \
   --out-dir "$SOSA_BUILD_DIR"
 ```
+
+The build writes `survey.payload.json` and `survey.fixture.json`.
+
 
 
 ## Get the real workspace ID
