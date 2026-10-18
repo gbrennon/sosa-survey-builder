@@ -68,6 +68,30 @@ The output directory can be any path:
 bun run build survey.json --out-dir /tmp/my-survey
 ```
 
+## Use the automation scripts
+
+The repository includes focused wrappers for the common local workflow.
+
+Validate the default example:
+
+```bash
+./scripts/validate-survey.sh
+```
+
+Build the default example into `dist/`:
+
+```bash
+./scripts/build-survey.sh
+```
+
+Pass a custom authoring file and output directory:
+
+```bash
+./scripts/build-survey.sh survey.json /tmp/my-survey
+```
+
+The build script validates the authoring file before creating both artifacts.
+
 ## Common failure
 
 The compiler rejects capabilities that the Formbricks renderer does not represent.
