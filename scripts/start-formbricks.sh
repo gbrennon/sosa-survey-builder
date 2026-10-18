@@ -4,6 +4,9 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/.." && pwd)"
 formbricks_dir="${1:-${FORMBRICKS_DIR:-$repo_root/../formbricks}}"
+default_formbricks_repository_url="https://github.com/formbricks/formbricks.git"
+formbricks_repository_url="${FORMBRICKS_REPOSITORY_URL:-$default_formbricks_repository_url}"
+formbricks_ref="${FORMBRICKS_REF:-main}"
 compose_file="$formbricks_dir/docker-compose.dev.yml"
 env_file="$formbricks_dir/.env"
 compose_project="formbricks"
@@ -24,10 +27,36 @@ if ! command -v pnpm >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -d "$formbricks_dir" ]]; then
-  printf 'Formbricks checkout not found: %s\n' "$formbricks_dir" >&2
-  exit 1
-fi
+validate_existing_formbricks_checkout() {
+  if ! git -C "$formbricks_dir" rev-parse --show-toplevel >/dev/null 2>&1; then
+    printf 'Formbricks checkout is not a Git repository: %s\n' "$formbricks_dir" >&2
+    exit 1
+  fi
+  if [[ ! -f "$formbricks_dir/package.json" ]]; then
+    printf 'Formbricks package manifest not found: %s\n' "$formbricks_dir" >&2
+    exit 1
+  fi
+}
+
+ensure_formbricks_checkout() {
+  if ! command -v git >/dev/null 2>&1; then
+    printf 'git is required to bootstrap Formbricks\n' >&2
+    exit 1
+  fi
+  if [[ -d "$formbricks_dir" ]]; then
+    validate_existing_formbricks_checkout
+    return
+  fi
+  if [[ -e "$formbricks_dir" ]]; then
+    printf 'Formbricks path is not a directory: %s\n' "$formbricks_dir" >&2
+    exit 1
+  fi
+  printf 'Cloning Formbricks into %s\n' "$formbricks_dir"
+  git clone --branch "$formbricks_ref" --depth 1 \
+    "$formbricks_repository_url" "$formbricks_dir"
+}
+
+ensure_formbricks_checkout
 
 if [[ ! -f "$compose_file" ]]; then
   printf 'Formbricks compose file not found: %s\n' "$compose_file" >&2
@@ -82,7 +111,7 @@ if ! services_are_running; then
   fi
 fi
 
-for attempt in {1..30}; do
+for _ in {1..30}; do
   if podman-compose \
     -p "$compose_project" \
     -f "$compose_file" \
