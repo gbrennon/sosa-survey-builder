@@ -12,12 +12,6 @@ Install and verify these tools:
 - Podman and `podman-compose`
 - `terminal-browser`
 
-Use three terminals:
-
-1. Formbricks dependencies
-2. Formbricks web application
-3. SOSA survey builder
-
 Keep the Formbricks checkout separate from this SOSA repository.
 
 ## Start Formbricks dependencies
@@ -66,8 +60,10 @@ Pass custom paths when needed:
 ./scripts/start-and-ingest-survey.sh survey.json /path/to/formbricks
 ```
 
-The script starts dependencies and the web process, waits for HTTP readiness,
-builds and imports the payload, and prints the editor and live survey URLs.
+The script prepares the checkout with `pnpm install` when needed and runs
+`pnpm dev:setup`.
+It starts dependencies and the web process, waits for readiness, builds and
+imports the payload, and prints the editor and live survey URLs.
 Press `Ctrl+C` to stop only the web process.
 
 Keep the API key in the current shell.
@@ -87,8 +83,8 @@ Do not start an old stopped Formbricks project alongside the active
 
 ## Manual web startup alternative
 
-In a second terminal, keep the dependency stack running and start the web
-application from the Formbricks checkout:
+From the Formbricks checkout, keep the dependency stack running and start the
+web application:
 
 ```bash
 cd /path/to/formbricks
