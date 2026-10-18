@@ -43,35 +43,35 @@ podman-compose -p formbricks \
 The dependency stack includes PostgreSQL, Valkey or Redis, Hub, RustFS,
 and Cube. It does not start the Formbricks web application.
 
-## Use the combined startup helper
+## Start and ingest with the combined helper
 
-To start the dependencies and web application together, run the SOSA helper:
-
-```bash
-cd /path/to/sosa-survey-builder
-./scripts/start-formbricks.sh /path/to/formbricks
-```
-
-The helper defaults to a sibling checkout at `../formbricks`.
-Override that location with `FORMBRICKS_DIR`:
+Set the workspace and API key in the current shell:
 
 ```bash
-FORMBRICKS_DIR=/path/to/formbricks \
-  ./scripts/start-formbricks.sh
+export FORMBRICKS_WORKSPACE_ID="<workspace-id>"
+export FORMBRICKS_API_KEY="<api-key>"
 ```
 
-It keeps the web process attached to the terminal so its startup errors remain
-visible. Press `Ctrl+C` to stop the web process; it does not run `down` on the
-dependency stack.
+Run from the SOSA repository:
 
-The helper reuses already-running long-lived services and tolerates completed
-one-shot init containers.
-It waits for Valkey to answer `PONG` before starting the web process.
+```bash
+./scripts/start-and-ingest-survey.sh
+```
 
-When using the helper, skip the separate web-start command below.
+The script defaults to `examples/architecture-survey.json` and a sibling
+Formbricks checkout at `../formbricks`.
+Pass custom paths when needed:
 
-Keep local secrets in the Formbricks `.env` file.
-Never commit them or copy them into the SOSA repository.
+```bash
+./scripts/start-and-ingest-survey.sh survey.json /path/to/formbricks
+```
+
+The script starts dependencies and the web process, waits for HTTP readiness,
+builds and imports the payload, and prints the editor and live survey URLs.
+Press `Ctrl+C` to stop only the web process.
+
+Keep the API key in the current shell.
+Never commit it or copy it into the SOSA repository.
 
 ## Check dependency readiness
 
@@ -85,7 +85,7 @@ The Redis or Valkey service must be running on port `6379`.
 Do not start an old stopped Formbricks project alongside the active
 `formbricks_*` project.
 
-## Start the Formbricks web application
+## Manual web startup alternative
 
 In a second terminal, keep the dependency stack running and start the web
 application from the Formbricks checkout:
