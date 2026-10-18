@@ -34,11 +34,6 @@ if [[ ! -f "$compose_file" ]]; then
   exit 1
 fi
 
-if [[ ! -f "$env_file" ]]; then
-  printf 'Formbricks environment file not found: %s\n' "$env_file" >&2
-  exit 1
-fi
-
 services_are_running() {
   local service container status
   for service in "${required_services[@]}"; do
@@ -54,6 +49,17 @@ services_are_running() {
 }
 
 cd "$formbricks_dir"
+
+if [[ ! -d node_modules ]]; then
+  pnpm install --frozen-lockfile
+fi
+
+pnpm dev:setup
+
+if [[ ! -f "$env_file" ]]; then
+  printf 'Formbricks environment file not found: %s\n' "$env_file" >&2
+  exit 1
+fi
 
 if ! services_are_running; then
   compose_status=0
