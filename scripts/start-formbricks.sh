@@ -117,7 +117,7 @@ for _ in {1..30}; do
     -f "$compose_file" \
     --env-file "$env_file" \
     exec -T valkey valkey-cli ping 2>/dev/null | grep -q '^PONG$'; then
-    exec pnpm --reporter=append-only dev
+    exec pnpm --reporter=append-only --filter @formbricks/web dev
   fi
   sleep 1
 done
