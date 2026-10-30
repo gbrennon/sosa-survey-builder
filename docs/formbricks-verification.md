@@ -12,39 +12,47 @@ Install and verify these tools:
 - Podman and `podman-compose`
 - `terminal-browser`
 
-Use three terminals:
+The combined helper bootstraps Formbricks in a sibling checkout at
+`../formbricks`.
+It clones `https://github.com/formbricks/formbricks.git` at `main` when the
+checkout is missing.
+Override the checkout, repository, or ref with `FORMBRICKS_DIR`,
+`FORMBRICKS_REPOSITORY_URL`, and `FORMBRICKS_REF`.
+Formbricks source, dependencies, and `.env` remain outside this repository.
 
-1. Formbricks dependencies
-2. Formbricks web application
-3. SOSA survey builder
+## Start and ingest with the combined helper
 
-Keep the Formbricks checkout separate from this SOSA repository.
-
-## Start Formbricks dependencies
-
-Run the supported development setup from the Formbricks checkout:
-
-```bash
-cd /path/to/formbricks
-pnpm install
-pnpm db:up
-```
-
-`pnpm db:up` runs the Formbricks development dependency stack.
-When using Podman directly, use the equivalent command:
+Set the workspace and API key in the current shell:
 
 ```bash
-podman-compose -p formbricks \
-  -f docker-compose.dev.yml \
-  --env-file .env \
-  up -d
+export FORMBRICKS_WORKSPACE_ID="<workspace-id>"
+export FORMBRICKS_API_KEY="<api-key>"
 ```
 
-The dependency stack includes PostgreSQL, Valkey or Redis, Hub, RustFS,
-and Cube. It does not start the Formbricks web application.
+Run from the SOSA repository:
 
-Keep local secrets in the Formbricks `.env` file.
-Never commit them or copy them into the SOSA repository.
+```bash
+./scripts/start-and-ingest-survey.sh
+```
+
+The script defaults to `examples/architecture-survey.json` and a sibling
+Formbricks checkout at `../formbricks`.
+Pass custom paths when needed:
+
+```bash
+./scripts/start-and-ingest-survey.sh survey.json /path/to/formbricks
+```
+
+The script prepares the checkout with `pnpm install` when needed and runs
+`pnpm dev:setup`.
+It starts dependencies and the web process, waits for readiness, builds and
+imports the payload, and prints the editor and live survey URLs.
+Press `Ctrl+C` to stop only the web process.
+
+Keep the API key in the current shell.
+Never commit it or copy it into the SOSA repository.
+
+## Check dependency readiness
 
 Check that the dependencies are running:
 
@@ -56,10 +64,10 @@ The Redis or Valkey service must be running on port `6379`.
 Do not start an old stopped Formbricks project alongside the active
 `formbricks_*` project.
 
-## Start the Formbricks web application
+## Manual web startup alternative
 
-In a second terminal, keep the dependency stack running and start the web
-application from the Formbricks checkout:
+From the Formbricks checkout, keep the dependency stack running and start the
+web application:
 
 ```bash
 cd /path/to/formbricks
