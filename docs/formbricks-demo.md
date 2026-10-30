@@ -27,6 +27,71 @@ From the repository root:
 ./scripts/start-and-ingest-survey.sh --demo
 ```
 
+## Use a different survey file
+
+The default input is `examples/architecture-survey.json`. Pass another
+authoring survey as the first positional argument:
+
+```bash
+./scripts/start-and-ingest-survey.sh --demo path/to/my-survey.json
+```
+
+You can also provide the Formbricks checkout as the second positional argument:
+
+```bash
+./scripts/start-and-ingest-survey.sh \
+  --demo \
+  path/to/my-survey.json \
+  /path/to/formbricks
+```
+
+## Choose the Formbricks checkout and revision
+
+These environment variables control the external checkout used by the bootstrap:
+
+```bash
+export FORMBRICKS_DIR="$PWD/../formbricks"
+export FORMBRICKS_REPOSITORY_URL="https://github.com/formbricks/formbricks.git"
+export FORMBRICKS_REF="main"
+./scripts/start-and-ingest-survey.sh --demo
+```
+
+`FORMBRICKS_DIR` may point to an existing checkout or a path that should be
+cloned. `FORMBRICKS_REPOSITORY_URL` and `FORMBRICKS_REF` are used when the
+checkout must be cloned. Formbricks source, dependencies, and `.env` stay
+outside the SOSA repository.
+
+## Change the URL used by the helper
+
+Set `FORMBRICKS_URL` when Formbricks is reachable at a different base URL:
+
+```bash
+FORMBRICKS_URL="http://localhost:3000" \
+  ./scripts/start-and-ingest-survey.sh --demo
+```
+
+This changes the URL used for readiness checks, API requests, and printed
+links. It does not reconfigure the Formbricks dev server port. The web process
+continues to use the port configured by the external Formbricks checkout,
+normally `3000`.
+
+## Prepare dependencies without starting the web process
+
+For an advanced warm-up, prepare the Formbricks dependencies and Valkey without
+starting the host web process:
+
+```bash
+FORMBRICKS_PREPARE_ONLY=1 \
+  ./scripts/start-formbricks.sh "${FORMBRICKS_DIR:-../formbricks}"
+```
+
+The combined `--demo` helper performs this preparation automatically before
+migrations, seeding, and survey import.
+
+Runtime selection is automatic: the bootstrap prefers working Podman with
+`podman-compose`, then Docker Compose, then legacy `docker-compose`. There is
+no separate runtime-selection flag.
+
 The script performs this sequence:
 
 1. Ensures the sibling Formbricks checkout exists at `../formbricks`.
