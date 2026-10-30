@@ -42,19 +42,15 @@ const createFixture = (databaseUrl: string, runtime: Runtime = "podman") => {
     );
     writeExecutable(
       join(bin, "podman-compose"),
-      '#!/usr/bin/env bash\nif [[ "$*" == *pull* ]]; then echo compose-pull >> "$FAKE_LOG"; fi\nif [[ "$*" == *"up -d"* ]]; then echo compose-up >> "$FAKE_LOG"; touch "$FAKE_STACK_READY"; fi\nif [[ "$*" == *" ps -q "* ]]; then [[ -e "$FAKE_STACK_READY" ]] && echo fake-container; fi\nif [[ "$*" == *exec* ]]; then echo compose-valkey >> "$FAKE_LOG"; echo PONG; fi\n',
+      '#!/usr/bin/env bash\nif [[ "$*" == *pull* ]]; then echo compose-pull >> "$FAKE_LOG"; fi\nif [[ "$*" == *"up -d"* ]]; then echo compose-up >> "$FAKE_LOG"; touch "$FAKE_STACK_READY"; fi\nif [[ "$*" == *" ps -q "* ]]; then [[ -e "$FAKE_STACK_READY" ]] && echo fake-container; fi\nif [[ "$*" == *" postgres psql "* ]]; then echo psql >> "$FAKE_LOG"; for arg in "$@"; do [[ "$arg" == postgresql://* ]] && printf "%s\\n" "$arg" > "$FAKE_PSQL_ARG"; done; printf "%s\\n" "$FAKE_COUNTS"; fi\nif [[ "$*" == *" valkey valkey-cli ping"* ]]; then echo compose-valkey >> "$FAKE_LOG"; echo PONG; fi\n',
     );
   } else {
     writeExecutable(
       join(bin, "docker"),
-      '#!/usr/bin/env bash\ncase "$*" in\n  "compose version") exit 0;;\n  *pull*) echo compose-pull >> "$FAKE_LOG";;\n  *"up -d"*) echo compose-up >> "$FAKE_LOG"; /usr/bin/touch "$FAKE_STACK_READY";;\n  *"ps -q"*) [[ -e "$FAKE_STACK_READY" ]] && echo fake-container;;\n  *exec*) echo compose-valkey >> "$FAKE_LOG"; echo PONG;;\n  *inspect*) [[ -e "$FAKE_STACK_READY" ]] && echo running;;\nesac\n',
+      '#!/usr/bin/env bash\ncase "$*" in\n  "compose version") exit 0;;\n  *pull*) echo compose-pull >> "$FAKE_LOG";;\n  *"up -d"*) echo compose-up >> "$FAKE_LOG"; /usr/bin/touch "$FAKE_STACK_READY";;\n  *"ps -q"*) [[ -e "$FAKE_STACK_READY" ]] && echo fake-container;;\n  *" postgres psql "*) echo psql >> "$FAKE_LOG"; for arg in "$@"; do [[ "$arg" == postgresql://* ]] && printf "%s\\n" "$arg" > "$FAKE_PSQL_ARG"; done; printf "%s\\n" "$FAKE_COUNTS";;\n  *" valkey valkey-cli ping"*) echo compose-valkey >> "$FAKE_LOG"; echo PONG;;\n  *inspect*) [[ -e "$FAKE_STACK_READY" ]] && echo running;;\nesac\n',
     );
   }
 
-  writeExecutable(
-    join(bin, "psql"),
-    '#!/usr/bin/env bash\necho psql >> "$FAKE_LOG"\nprintf "%s\\n" "$1" > "$FAKE_PSQL_ARG"\nprintf "%s\\n" "$FAKE_COUNTS"\n',
-  );
   writeExecutable(
     join(bin, "curl"),
     `#!/usr/bin/env bash
