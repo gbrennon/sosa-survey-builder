@@ -38,6 +38,13 @@ fi
 
 survey_path="${positional[0]:-$repo_root/examples/architecture-survey.json}"
 formbricks_dir="${positional[1]:-${FORMBRICKS_DIR:-$repo_root/../formbricks}}"
+compose_project="formbricks"
+compose_file="$formbricks_dir/docker-compose.dev.yml"
+env_file="$formbricks_dir/.env"
+container_runtime=""
+container_cli=""
+compose_cmd=()
+source "$script_dir/formbricks-runtime.sh"
 formbricks_url="${FORMBRICKS_URL:-http://localhost:3000}"
 formbricks_api_key="${FORMBRICKS_API_KEY:-}"
 formbricks_workspace_id="${FORMBRICKS_WORKSPACE_ID:-}"
@@ -82,7 +89,7 @@ require_command setsid
 if [[ "$demo_mode" == "1" ]]; then
   require_command openssl
   require_command pnpm
-  require_command psql
+  select_formbricks_runtime
   seed_api_key="$(openssl rand -hex 32)"
   formbricks_api_key="fbk_${seed_api_key}"
   formbricks_workspace_id="clseedworkspace000000000"
@@ -147,7 +154,7 @@ run_formbricks_migrations() {
 
 database_counts() {
   local db_url="$1"
-  psql "$db_url" -X -v ON_ERROR_STOP=1 -Atc \
+  formbricks_compose exec -T postgres psql "$db_url" -X -v ON_ERROR_STOP=1 -Atc \
     'SELECT (SELECT COUNT(*) FROM "User") || '"'"'|'"'"' || (SELECT COUNT(*) FROM "Organization") || '"'"'|'"'"' || (SELECT COUNT(*) FROM "Workspace");'
 }
 
