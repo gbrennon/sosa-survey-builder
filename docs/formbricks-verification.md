@@ -47,6 +47,11 @@ Pass custom paths when needed:
 ./scripts/start-and-ingest-survey.sh survey.json /path/to/formbricks
 ```
 
+## Tune the helper
+
+For survey paths, external checkout/revision, and helper URL settings, see the
+[disposable demo tuning instructions](formbricks-demo.md#use-a-different-survey-file).
+
 The script prepares the checkout with `pnpm install` when needed and runs
 `pnpm dev:setup`. It explicitly pulls the compose images before starting
 dependencies and the web process, waits for readiness, builds and imports the
