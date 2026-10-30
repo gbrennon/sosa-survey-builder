@@ -9,7 +9,8 @@ Install and verify these tools:
 
 - Bun 1.x
 - Node.js and pnpm, as required by Formbricks
-- Podman and `podman-compose`
+- Docker with Compose (the `docker compose` plugin or legacy `docker-compose`), or
+  Podman with `podman-compose`
 - `terminal-browser`
 
 The combined helper bootstraps Formbricks in a sibling checkout at
@@ -19,6 +20,9 @@ checkout is missing.
 Override the checkout, repository, or ref with `FORMBRICKS_DIR`,
 `FORMBRICKS_REPOSITORY_URL`, and `FORMBRICKS_REF`.
 Formbricks source, dependencies, and `.env` remain outside this repository.
+
+For the no-credential disposable demo path, see
+[Formbricks demo startup](formbricks-demo.md).
 
 ## Start and ingest with the combined helper
 
@@ -44,9 +48,9 @@ Pass custom paths when needed:
 ```
 
 The script prepares the checkout with `pnpm install` when needed and runs
-`pnpm dev:setup`.
-It starts dependencies and the web process, waits for readiness, builds and
-imports the payload, and prints the editor and live survey URLs.
+`pnpm dev:setup`. It explicitly pulls the compose images before starting
+dependencies and the web process, waits for readiness, builds and imports the
+payload, and prints the editor and live survey URLs.
 Press `Ctrl+C` to stop only the web process.
 
 Keep the API key in the current shell.
@@ -54,15 +58,15 @@ Never commit it or copy it into the SOSA repository.
 
 ## Check dependency readiness
 
-Check that the dependencies are running:
+Check that the dependencies are running with the selected container runtime:
 
 ```bash
-podman ps
+docker compose ps
+# or: podman-compose ps
 ```
 
 The Redis or Valkey service must be running on port `6379`.
-Do not start an old stopped Formbricks project alongside the active
-`formbricks_*` project.
+Do not start an old stopped Formbricks project alongside the active project.
 
 ## Manual web startup alternative
 

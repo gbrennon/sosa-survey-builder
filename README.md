@@ -43,6 +43,9 @@ The full workflow is documented in [Getting started](docs/getting-started.md).
 - [Formbricks rendering](docs/formbricks-rendering.md) explains API and fixture integration.
 - [Formbricks verification](docs/formbricks-verification.md) provides the
   complete import, publishing, and conditional-question verification workflow.
+- [Formbricks disposable demo](docs/formbricks-demo.md) explains how to pull
+  images, seed a fresh local instance, import the example, and open it in a
+  browser without user-supplied credentials.
 - [Examples](docs/examples.md) explains the included assessment.
 - [Development](docs/development.md) explains tests and project structure.
 
