@@ -12,8 +12,10 @@ Install and verify:
 - Docker with Compose (the `docker compose` plugin or legacy `docker-compose`), or
   Podman with `podman-compose`
 - `openssl`
-- `psql`
 - A browser
+
+PostgreSQL is started inside the Formbricks compose stack. No host PostgreSQL
+server or `psql` client is required.
 
 Run the command from the SOSA repository. Use a disposable local Formbricks
 checkout and database. The demo refuses to seed a database that already has any
